@@ -72,7 +72,7 @@ public class ReplayCar : MonoBehaviour
         carController.accelerationInput = inputRecord.AccelerationInput;
         carController.steerInput = inputRecord.SteerInput;
         carController.brakeInput = inputRecord.BrakeInput;
-        //checking if unique moment happened at this moment
+        //checking if rigidbody record has to be applied at this moment
         if(_currentReplay.RigidbodyRecordKeys.Contains(_currentRecord))
         {
             var rigidbodyRecord = _currentReplay.ReplayRigidbodyRecords.Find(r => r.Key == _currentRecord);
