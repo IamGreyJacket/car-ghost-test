@@ -48,7 +48,7 @@ public class ReplayCar : MonoBehaviour
         _rigidbody.angularVelocity = Vector3.zero;
     }
 
-    //Applies inputs and sometimes Rigidbody parameters in replay every FixedUpdate
+    //Applies inputs in replay every FixedUpdate and sometimes Rigidbody parameters
     //(WaitForFixedUpdate is used for precision of a replay)
     private IEnumerator PlayReplay()
     {

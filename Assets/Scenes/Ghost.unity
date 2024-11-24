@@ -1239,7 +1239,6 @@ GameObject:
   - component: {fileID: 530850607}
   - component: {fileID: 530850606}
   - component: {fileID: 530850614}
-  - component: {fileID: 530850615}
   m_Layer: 6
   m_Name: Ash_Free Racing Car Red Variant
   m_TagString: Player
@@ -1730,20 +1729,7 @@ MonoBehaviour:
   _raceManager: {fileID: 1948454732}
   _carController: {fileID: 530850612}
   _rigidbody: {fileID: 530850611}
---- !u!114 &530850615
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 530850605}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 61fd3c21ad75f1b46887ad0ca37e9106, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _carController: {fileID: 530850612}
-  _rigidbody: {fileID: 530850611}
+  _uniqueMomentDelay: 0.2
 --- !u!1 &534448328
 GameObject:
   m_ObjectHideFlags: 0
@@ -6234,6 +6220,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _ghostCarPrefab: {fileID: 3328323807533535279, guid: 165161f266c81844fafa59bdc6d82290, type: 3}
+  _playerTag: Player
   IsWithGhost: 0
   _startPosition: {fileID: 1067782344}
   _finishLine: {fileID: 747372138}

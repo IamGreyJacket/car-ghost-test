@@ -1,3 +1,5 @@
+using Ashsvp;
+using Cinemachine;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,8 +12,12 @@ public class RaceManager : MonoBehaviour
     [SerializeField]
     private ReplayCar _ghostCarPrefab;
     private ReplayCar _currentGhostCar;
+    [Space]
+    private SimcadeVehicleController _playerCar;
+    private bool _playerSubscribed = false;
+    [TagField, SerializeField]
+    private string _playerTag = "Player";
     public bool IsWithGhost = false;
-    private List<RaceParticipant> _participants = new List<RaceParticipant>();
 
     [Space, SerializeField]
     private Transform _startPosition;
@@ -32,8 +38,9 @@ public class RaceManager : MonoBehaviour
     //Teleports participants (cars that will participate in a race) to a start point of the race
     public void PrepareForRace()
     {
-        if (FindParticipants())
+        if (FindPlayer())
         {
+            /*
             foreach (var participant in _participants)
             {
                 participant.ForbidToDrive();
@@ -43,33 +50,51 @@ public class RaceManager : MonoBehaviour
                 RaceStarted += participant.AllowToDrive;
                 RaceCompleted += participant.ForbidToDrive;
             }
+            */
+            ForbidPlayerToDrive();
+            var playerRigidbody = _playerCar.GetComponent<Rigidbody>();
+            playerRigidbody.velocity = Vector3.zero;
+            playerRigidbody.angularVelocity = Vector3.zero;
+            playerRigidbody.Move(_startPosition.position, _startPosition.rotation);
+
         }
         if (IsWithGhost) CreateGhostCar();
         else DestroyGhostCar();
     }
 
     /// <summary>
-    /// Finds all RaceParticipant. If found at least one - returns true, otherwise returns false.
+    /// Finds player car
     /// </summary>
     /// <returns></returns>
-    public bool FindParticipants()
+    public bool FindPlayer()
     {
-        //if there were any participants in out List, we unsubscribe them from RaceManager events just in case.
-        if(_participants.Count > 0)
+        var cars = new List<SimcadeVehicleController>(FindObjectsOfType<SimcadeVehicleController>());
+        _playerCar = cars.Find(c => c.CompareTag(_playerTag));
+        if (_playerCar != null)
         {
-            foreach(var participant in _participants)
+            if (_playerSubscribed == false)
             {
-                RaceStarted -= participant.AllowToDrive;
-                RaceCompleted -= participant.ForbidToDrive;
+                RaceStarted += AllowPlayerToDrive;
+                RaceCompleted += ForbidPlayerToDrive;
+                _playerSubscribed = true;
             }
-        }
-        var participants = new List<RaceParticipant>(FindObjectsOfType<RaceParticipant>());
-        if (participants != null && participants.Count > 0)
-        {
-            _participants = participants;
             return true;
         }
         return false;
+    }
+
+    public void AllowPlayerToDrive()
+    {
+        _playerCar.CanDrive = true;
+        _playerCar.CanAccelerate = true;
+    }
+    public void ForbidPlayerToDrive()
+    {
+        _playerCar.CanDrive = false;
+        _playerCar.CanAccelerate = false;
+        _playerCar.accelerationInput = 0;
+        _playerCar.steerInput = 0;
+        _playerCar.brakeInput = 1f;
     }
 
     public void SetIsWithGhost(bool isWithGhost)

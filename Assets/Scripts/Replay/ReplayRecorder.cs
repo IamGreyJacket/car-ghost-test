@@ -15,9 +15,11 @@ public class ReplayRecorder : MonoBehaviour
     [SerializeField]
     private Rigidbody _rigidbody;
 
+    [SerializeField, Min(0)]
+    private float _uniqueMomentDelay = 0.2f; //seconds.
     private Replay _currentReplay;
     private bool _isRecord = false;
-    private bool _isCollisionInteract = false;
+    private bool _isUniqueMoment = false;
     
     //public bool IntervalIsFixedDeltaTime = false;
     private void Awake()
@@ -36,16 +38,16 @@ public class ReplayRecorder : MonoBehaviour
     //UniqueRecord will provide more information for a more precise replay.
     private void OnCollisionEnter(Collision collision)
     {
-        _isCollisionInteract = true;
+        _isUniqueMoment = true;
         Debug.Log("collided with something");
     }
     private void OnCollisionStay(Collision collision)
     {
-        _isCollisionInteract = true;
+        _isUniqueMoment = true;
     }
     private void OnCollisionExit(Collision collision)
     {
-        _isCollisionInteract = true;
+        _isUniqueMoment = true;
         Debug.Log("exits collider");
     }
 
@@ -55,15 +57,17 @@ public class ReplayRecorder : MonoBehaviour
         if (_raceManager.IsWithGhost == false)
         {
             StartCoroutine(Recording());
+            StartCoroutine(UniqueMomentDelay());
         }
     }
 
     public void StopRecord()
     {
-        if(_raceManager.IsWithGhost == false) _isRecord = false;
+        _isRecord = false;
     }
 
-    //Records input and sometimes Rigidbody every FixedUpdate (WaitForFixedUpdate used for precision of a replay)
+    //Records input every FixedUpdate and sometimes Rigidbody information
+    //(WaitForFixedUpdate used for precision of a replay)
     private IEnumerator Recording()
     {
         _currentReplay = new Replay();
@@ -76,11 +80,24 @@ public class ReplayRecorder : MonoBehaviour
         SaveReplay("lastReplay");
     }
 
+    //Delays the moment when more information for a replay will be saved
+    //made to make a replay more precise, but also to save memory, taken by replay, at the cost of precision
+    private IEnumerator UniqueMomentDelay()
+    {
+        while (_isRecord)
+        {
+            yield return new WaitForSeconds(_uniqueMomentDelay);
+            _isUniqueMoment = true;
+            Debug.Log("Unique moment delay passed, NOW is unique moment");
+        }
+        yield return null;
+    }
+
     //Adds current input to the Replay record
-    public void Record(SimcadeVehicleController carController)//todo
+    public void Record(SimcadeVehicleController carController)
     {
         //saves more information if collision happened.
-        if (_isCollisionInteract)
+        if (_isUniqueMoment)
         {
             var key = _currentReplay.ReplayInputs.Count;
             var uniqueRecord = new UniqueRecord(key, _rigidbody.position,
@@ -89,7 +106,7 @@ public class ReplayRecorder : MonoBehaviour
             _currentReplay.ReplayUniqueRecords.Add(uniqueRecord);
             _currentReplay.UniqueRecordKeys.Add(key);
 
-            _isCollisionInteract = false;
+            _isUniqueMoment = false;
         }
         //saves inputs
         var inputRecord = new InputRecord(carController.accelerationInput, carController.steerInput, carController.brakeInput);
