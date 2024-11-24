@@ -16,10 +16,10 @@ public class ReplayRecorder : MonoBehaviour
     private Rigidbody _rigidbody;
 
     [SerializeField, Min(0)]
-    private float _uniqueMomentDelay = 0.2f; //seconds.
+    private float _rigidbodyRecordDelay = 0.2f; //seconds.
     private Replay _currentReplay;
     private bool _isRecord = false;
-    private bool _isUniqueMoment = false;
+    private bool _isRigidbodyRecord = false;
     
     //public bool IntervalIsFixedDeltaTime = false;
     private void Awake()
@@ -38,16 +38,16 @@ public class ReplayRecorder : MonoBehaviour
     //UniqueRecord will provide more information for a more precise replay.
     private void OnCollisionEnter(Collision collision)
     {
-        _isUniqueMoment = true;
+        _isRigidbodyRecord = true;
         Debug.Log("collided with something");
     }
     private void OnCollisionStay(Collision collision)
     {
-        _isUniqueMoment = true;
+        _isRigidbodyRecord = true;
     }
     private void OnCollisionExit(Collision collision)
     {
-        _isUniqueMoment = true;
+        _isRigidbodyRecord = true;
         Debug.Log("exits collider");
     }
 
@@ -57,7 +57,7 @@ public class ReplayRecorder : MonoBehaviour
         if (_raceManager.IsWithGhost == false)
         {
             StartCoroutine(Recording());
-            StartCoroutine(UniqueMomentDelay());
+            StartCoroutine(RigidbodyRecordDelay());
         }
     }
 
@@ -82,12 +82,12 @@ public class ReplayRecorder : MonoBehaviour
 
     //Delays the moment when more information for a replay will be saved
     //made to make a replay more precise, but also to save memory, taken by replay, at the cost of precision
-    private IEnumerator UniqueMomentDelay()
+    private IEnumerator RigidbodyRecordDelay()
     {
         while (_isRecord)
         {
-            yield return new WaitForSeconds(_uniqueMomentDelay);
-            _isUniqueMoment = true;
+            yield return new WaitForSeconds(_rigidbodyRecordDelay);
+            _isRigidbodyRecord = true;
             Debug.Log("Unique moment delay passed, NOW is unique moment");
         }
         yield return null;
@@ -97,16 +97,16 @@ public class ReplayRecorder : MonoBehaviour
     public void Record(SimcadeVehicleController carController)
     {
         //saves more information if collision happened.
-        if (_isUniqueMoment)
+        if (_isRigidbodyRecord)
         {
             var key = _currentReplay.ReplayInputs.Count;
-            var uniqueRecord = new UniqueRecord(key, _rigidbody.position,
+            var rigidbodyRecord = new RigidbodyRecord(key, _rigidbody.position,
                 _rigidbody.rotation, _rigidbody.velocity, _rigidbody.angularVelocity);
 
-            _currentReplay.ReplayUniqueRecords.Add(uniqueRecord);
-            _currentReplay.UniqueRecordKeys.Add(key);
+            _currentReplay.ReplayRigidbodyRecords.Add(rigidbodyRecord);
+            _currentReplay.RigidbodyRecordKeys.Add(key);
 
-            _isUniqueMoment = false;
+            _isRigidbodyRecord = false;
         }
         //saves inputs
         var inputRecord = new InputRecord(carController.accelerationInput, carController.steerInput, carController.brakeInput);

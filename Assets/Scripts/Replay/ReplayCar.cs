@@ -73,12 +73,12 @@ public class ReplayCar : MonoBehaviour
         carController.steerInput = inputRecord.SteerInput;
         carController.brakeInput = inputRecord.BrakeInput;
         //checking if unique moment happened at this moment
-        if(_currentReplay.UniqueRecordKeys.Contains(_currentRecord))
+        if(_currentReplay.RigidbodyRecordKeys.Contains(_currentRecord))
         {
-            var uniqueRecord = _currentReplay.ReplayUniqueRecords.Find(r => r.Key == _currentRecord);
-            _rigidbody.velocity = uniqueRecord.RigidbodyVelocity;
-            _rigidbody.angularVelocity = uniqueRecord.AngularVelocity;
-            _rigidbody.Move(uniqueRecord.CarPosition, uniqueRecord.RigidbodyRotation);
+            var rigidbodyRecord = _currentReplay.ReplayRigidbodyRecords.Find(r => r.Key == _currentRecord);
+            _rigidbody.velocity = rigidbodyRecord.RigidbodyVelocity;
+            _rigidbody.angularVelocity = rigidbodyRecord.AngularVelocity;
+            _rigidbody.Move(rigidbodyRecord.CarPosition, rigidbodyRecord.RigidbodyRotation);
             Debug.Log("Unique Record Played");
         }
         _currentRecord++;
